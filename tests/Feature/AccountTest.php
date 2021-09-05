@@ -118,4 +118,54 @@ class AccountTest extends TestCase
             ->assertStatus(201)
             ->assertExactJson($returnExpected);
     }
+
+    /**
+     * Transfer from non-existing account
+     * 
+     * @return void
+     */
+    public function testTransferNonExistingAccount()
+    {
+        $response = $this->postJson('/api/event', [
+            'type' => 'transfer',
+            'origin' => '200',
+            'destination' => '300',
+            'amount' => 15,
+        ]);
+
+        $response->assertStatus(404);
+        $this->assertEquals(0, $response->getData());
+    }
+
+    /**
+     * Transfer from existing account
+     * 
+     * @return void
+     */
+    public function testTransferExistingAccount()
+    {
+        $account = factory(Account::class)->create(['id' => '100', 'balance' => 15]);
+
+        $response = $this->postJson('/api/event', [
+            'type' => 'transfer',
+            'origin' => '100',
+            'destination' => '300',
+            'amount' => 15,
+        ]);
+
+        $returnExpected = [
+            "origin" => [
+                "id" => "100",
+                "balance" => 0
+            ],
+            "destination" => [
+                "id" => "300",
+                "balance" => 15
+            ],
+        ];
+
+        $response
+            ->assertStatus(201)
+            ->assertExactJson($returnExpected);
+    }
 }

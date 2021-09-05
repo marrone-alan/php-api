@@ -8,6 +8,7 @@ use App\Http\Requests\EventPostRequest;
 use App\Services\AccountService;
 use App\Services\DepositService;
 use App\Services\WithdrawService;
+use App\Services\TransferService;
 
 class AccountController extends Controller
 {
@@ -62,6 +63,17 @@ class AccountController extends Controller
                 }
                 break;
             case 'transfer':
+                try {
+                    $transferService = new TransferService(
+                        $request->origin,
+                        $request->destination,
+                        $request->amount
+                    );
+
+                    $response = $transferService->exec();
+                } catch (\Throwable $th) {
+                    return response()->json(0, Response::HTTP_NOT_FOUND);
+                }
                 break;
             default:
                 return response()->json('invalid type', Response::HTTP_NOT_FOUND);
