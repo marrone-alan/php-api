@@ -14,7 +14,7 @@ class BalanceGetRequest extends Request
     public function rules()
     {
         return [
-            'account_id' => 'required|integer'
+            'account_id' => 'required|string'
         ];
     }
 }

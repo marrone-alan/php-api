@@ -37,4 +37,46 @@ class AccountTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals($account->balance, $response->getData());
     }
+
+    /**
+     * Create account with initial balance
+     *
+     * @return void
+     */
+    public function testCreateAccountInitialValue()
+    {
+        $response = $this->postJson('/api/event', [
+            'type' => 'deposit',
+            'destination' => '100',
+            'amount' => 10,
+        ]);
+
+        $returnExpected = ["destination" => ["id" => "100", "balance" => 10]];
+
+        $response
+            ->assertStatus(201)
+            ->assertExactJson($returnExpected);
+    }
+
+    /**
+     * Deposit into existing account
+     * 
+     * @return void
+     */
+    public function testDepositExistingAccount()
+    {
+        $account = factory(Account::class)->create(['id' => '100', 'balance' => 10]);
+
+        $response = $this->postJson('/api/event', [
+            'type' => 'deposit',
+            'destination' => '100',
+            'amount' => '10',
+        ]);
+
+        $returnExpected = ["destination" => ["id" => "100", "balance" => 20]];
+
+        $response
+            ->assertStatus(201)
+            ->assertExactJson($returnExpected);
+    }
 }

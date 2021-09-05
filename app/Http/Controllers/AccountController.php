@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Response;
 use App\Http\Requests\BalanceGetRequest;
+use App\Http\Requests\EventPostRequest;
 use App\Services\AccountService;
+use App\Services\DepositService;
 
 class AccountController extends Controller
 {
@@ -32,5 +34,33 @@ class AccountController extends Controller
         }
 
         return response()->json($response, Response::HTTP_OK);
+    }
+
+    /**
+     * Account transactions
+     */
+    public function event(EventPostRequest $request)
+    {   
+        $response = null;
+
+        switch ($request->type) {
+            case 'deposit':
+                try {
+                    $depositService = new DepositService($request->destination, $request->amount);
+                    $response = $depositService->exec();
+                } catch (\Throwable $th) {
+                    return response()->json(0, Response::HTTP_NOT_FOUND);
+                }
+                break;
+            case 'withdraw':
+                break;
+            case 'transfer':
+                break;
+            default:
+                return response()->json('invalid type', Response::HTTP_NOT_FOUND);
+                break;
+        }
+
+        return response()->json($response, Response::HTTP_CREATED);
     }
 }

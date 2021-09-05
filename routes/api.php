@@ -19,3 +19,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/balance', 'AccountController@balance');
+Route::post('/event', 'AccountController@event');
