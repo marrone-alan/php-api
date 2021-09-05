@@ -2,47 +2,47 @@
 
 namespace App\Services;
 
-use App\Services\AccountService;
+use App\Models\Account;
 use DB;
 
-class DepositService
+class WithdrawService
 {
-    private $destination;
+    private $origin;
     private $amount;
     CONST MIN_AMOUNT = 1;
 
     /**
-     * Create a new DepositService instance.
+     * Create a new WithdrawService instance.
      * 
-     * @param string $destination
+     * @param string $origin
      * @param int $amount
      *
      * @return void
      */
-    public function __construct(string $destination, int $amount)
+    public function __construct(string $origin, int $amount)
     {
         if ($amount < self::MIN_AMOUNT) {
             throw new \Exception('The amount must be at least ' . self::MIN_AMOUNT . '.');
         }
 
-        $this->destination = $destination;
+        $this->origin = $origin;
         $this->amount = $amount;
     }
 
     /**
-     * execute deposit transaction
+     * execute withdraw transaction
      * 
      * @return array
      */
     public function exec(): array
     {
-        $accountService = new AccountService();
         $returnData = [];
+        $account = Account::findOrFail($this->origin);
+
+        $this->checkBalance($account);
 
         DB::beginTransaction();
         try {
-            $account = $accountService->fetchCreateAccount($this->destination);
-
             $account->balance = $this->getTotalAmount($account->balance, $this->amount);
             $account->save();
     
@@ -53,7 +53,7 @@ class DepositService
         }
         
         $returnData = [
-            'destination' => [
+            'origin' => [
                 'id' => $account->id,
                 'balance' => $account->balance,
             ]
@@ -66,12 +66,26 @@ class DepositService
      * Calculates new balance
      * 
      * @param int $currentValue
-     * @param int $depositAmount
+     * @param int $withdrawAmount
      * 
      * @return int
      */
-    private function getTotalAmount(int $currentBalance, int $depositAmount): int
+    private function getTotalAmount(int $currentBalance, int $withdrawAmount): int
     {
-        return $currentBalance + $depositAmount;
+        return $currentBalance - $withdrawAmount;
+    }
+
+    /**
+     * check if account has enough balance
+     * 
+     * @param Account $account
+     * 
+     * @return void
+     */
+    private function checkBalance(Account $account)
+    {
+        if ($account->balance < $this->amount) {
+            throw new \Exception('insufficient balance.');
+        }
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Requests\BalanceGetRequest;
 use App\Http\Requests\EventPostRequest;
 use App\Services\AccountService;
 use App\Services\DepositService;
+use App\Services\WithdrawService;
 
 class AccountController extends Controller
 {
@@ -53,6 +54,12 @@ class AccountController extends Controller
                 }
                 break;
             case 'withdraw':
+                try {
+                    $withdrawService = new WithdrawService($request->origin, $request->amount);
+                    $response = $withdrawService->exec();
+                } catch (\Throwable $th) {
+                    return response()->json(0, Response::HTTP_NOT_FOUND);
+                }
                 break;
             case 'transfer':
                 break;

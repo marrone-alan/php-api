@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use App\Services\DepositService;
+use App\Services\WithdrawService;
 
 class EventPostRequest extends Request
 {
@@ -16,14 +17,16 @@ class EventPostRequest extends Request
     {
         $rules = [
             'type' => 'required|string',
-            'amount' => 'required|integer|min:'.DepositService::MIN_AMOUNT,
         ];
 
         switch (Request::input('type')) {
             case 'deposit':
                 $rules['destination'] = 'required|string';
+                $rules['amount'] = 'required|integer|min:'.DepositService::MIN_AMOUNT;
                 break;
             case 'withdraw':
+                $rules['origin'] = 'required|string';
+                $rules['amount'] = 'required|integer|min:'.WithdrawService::MIN_AMOUNT;
                 break;
             case 'transfer':
                 break;

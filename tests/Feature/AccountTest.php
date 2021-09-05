@@ -70,10 +70,49 @@ class AccountTest extends TestCase
         $response = $this->postJson('/api/event', [
             'type' => 'deposit',
             'destination' => '100',
-            'amount' => '10',
+            'amount' => 10,
         ]);
 
         $returnExpected = ["destination" => ["id" => "100", "balance" => 20]];
+
+        $response
+            ->assertStatus(201)
+            ->assertExactJson($returnExpected);
+    }
+
+    /**
+     * Withdraw from non-existing account
+     * 
+     * @return void
+     */
+    public function testWithdrawNonExistingAccount()
+    {
+        $response = $this->postJson('/api/event', [
+            'type' => 'withdraw',
+            'origin' => '200',
+            'amount' => 10,
+        ]);
+
+        $response->assertStatus(404);
+        $this->assertEquals(0, $response->getData());
+    }
+
+    /**
+     * Withdraw from existing account
+     * 
+     * @return void
+     */
+    public function testWithdrawExistingAccount()
+    {
+        $account = factory(Account::class)->create(['id' => '100', 'balance' => 20]);
+
+        $response = $this->postJson('/api/event', [
+            'type' => 'withdraw',
+            'origin' => '100',
+            'amount' => 5,
+        ]);
+
+        $returnExpected = ["origin" => ["id" => "100", "balance" => 15]];
 
         $response
             ->assertStatus(201)
