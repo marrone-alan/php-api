@@ -35,7 +35,7 @@ class AccountController extends Controller
             return response()->json(0, Response::HTTP_NOT_FOUND);
         }
 
-        return response()->json($response, Response::HTTP_OK);
+        return 'OK';
     }
 
     /**
