@@ -17,7 +17,7 @@ class AccountTest extends TestCase
      */
     public function testNonExistingAccount()
     {
-        $response = $this->get('/api/balance?account_id=0');
+        $response = $this->get('/balance?account_id=0');
 
         $response->assertStatus(404);
         $this->assertEquals(0, $response->getData());
@@ -32,7 +32,7 @@ class AccountTest extends TestCase
     {
         $account = factory(Account::class)->create();
 
-        $response = $this->get("/api/balance?account_id={$account->id}");
+        $response = $this->get("/balance?account_id={$account->id}");
 
         $response->assertStatus(200);
         $this->assertEquals($account->balance, $response->getData());
@@ -45,7 +45,7 @@ class AccountTest extends TestCase
      */
     public function testCreateAccountInitialValue()
     {
-        $response = $this->postJson('/api/event', [
+        $response = $this->postJson('/event', [
             'type' => 'deposit',
             'destination' => '100',
             'amount' => 10,
@@ -67,7 +67,7 @@ class AccountTest extends TestCase
     {
         $account = factory(Account::class)->create(['id' => '100', 'balance' => 10]);
 
-        $response = $this->postJson('/api/event', [
+        $response = $this->postJson('/event', [
             'type' => 'deposit',
             'destination' => '100',
             'amount' => 10,
@@ -87,7 +87,7 @@ class AccountTest extends TestCase
      */
     public function testWithdrawNonExistingAccount()
     {
-        $response = $this->postJson('/api/event', [
+        $response = $this->postJson('/event', [
             'type' => 'withdraw',
             'origin' => '200',
             'amount' => 10,
@@ -106,7 +106,7 @@ class AccountTest extends TestCase
     {
         $account = factory(Account::class)->create(['id' => '100', 'balance' => 20]);
 
-        $response = $this->postJson('/api/event', [
+        $response = $this->postJson('/event', [
             'type' => 'withdraw',
             'origin' => '100',
             'amount' => 5,
@@ -126,7 +126,7 @@ class AccountTest extends TestCase
      */
     public function testTransferNonExistingAccount()
     {
-        $response = $this->postJson('/api/event', [
+        $response = $this->postJson('/event', [
             'type' => 'transfer',
             'origin' => '200',
             'destination' => '300',
@@ -146,7 +146,7 @@ class AccountTest extends TestCase
     {
         $account = factory(Account::class)->create(['id' => '100', 'balance' => 15]);
 
-        $response = $this->postJson('/api/event', [
+        $response = $this->postJson('/event', [
             'type' => 'transfer',
             'origin' => '100',
             'destination' => '300',
@@ -181,9 +181,9 @@ class AccountTest extends TestCase
         factory(Account::class)->create();
         $this->assertEquals(count(Account::all()), 3);
 
-        $response = $this->post('/api/reset');
+        $response = $this->post('/reset');
 
         $this->assertEquals(count(Account::all()), 0);
-        $this->assertEquals('OK', $response->getData());
+        $this->assertEquals('OK', $response->getContent());
     }
 }
