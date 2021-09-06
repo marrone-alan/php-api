@@ -23,6 +23,22 @@ class AccountController extends Controller
     }
 
     /**
+     * reset to the initial state
+     */
+    public function reset()
+    {   
+        $response = null;
+
+        try {
+            $response = $this->accountService->reset();
+        } catch (\Throwable $th) {
+            return response()->json(0, Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json($response, Response::HTTP_OK);
+    }
+
+    /**
      * Get balance from an account
      */
     public function balance(BalanceGetRequest $request)

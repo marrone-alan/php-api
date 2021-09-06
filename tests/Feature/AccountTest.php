@@ -168,4 +168,22 @@ class AccountTest extends TestCase
             ->assertStatus(201)
             ->assertExactJson($returnExpected);
     }
+
+    /**
+     * Reset account
+     * 
+     * @return void
+     */
+    public function testResetAccount()
+    {
+        factory(Account::class)->create();
+        factory(Account::class)->create();
+        factory(Account::class)->create();
+        $this->assertEquals(count(Account::all()), 3);
+
+        $response = $this->post('/api/reset');
+
+        $this->assertEquals(count(Account::all()), 0);
+        $this->assertEquals('OK', $response->getData());
+    }
 }

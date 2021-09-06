@@ -6,6 +6,20 @@ use App\Models\Account;
 
 class AccountService
 {
+
+    /**
+     * reset account table
+     * 
+     * @return void
+     */
+    public function reset()
+    {
+        $accountModel = new Account();
+        $accountModel->truncate();
+
+        return 'OK';
+    }
+
     /**
      * Fetch an account balance
      * 
